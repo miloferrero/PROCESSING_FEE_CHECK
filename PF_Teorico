@@ -3,31 +3,40 @@ def PF_Teorico (PRICING, PAYMENTS):
 
 CANT_PRICING_TYPES = select COUNT (DISTICT PRICING_TYPES_ID) from PRICING
 	
-	For i = 1 to CANT_PRICING_TYPES
+For i = 1 to CANT_PRICING_TYPES
 		
-		// Me fijo cuales variables están en juego en ese PRICING_TYPE
-		VARIABLES = Select (DISTICT FIELD_NAME) from PRICING where PRICING_PRIORIDAD = 1 
-    // ejemplos [‘payment_method_id’,’collector_id’]
+	// Me fijo cuales variables están en juego en ese PRICING_TYPE
+	VARIABLES = Select (DISTICT FIELD_NAME) from PRICING where PRICING_PRIORIDAD = 1 
+    	// ejemplos [‘payment_method_id’,’collector_id’]
 		
-    CANT_VARIABLES = VARIABLES.SHAPE[1]
+    	CANT_VARIABLES = VARIABLES.SHAPE[1]
 		
-		// ARMO EL SET DE RESTRICCIONES 
-		REGLAS = Select id_AUTOINCREMENT, PRICING_RULE_ID from PRICING where PRICING_PRIORIDAD = i
+	// ARMO EL SET DE REGLAS 
+	REGLAS = Select id_AUTOINCREMENT, PRICING_RULE_ID from PRICING where PRICING_PRIORIDAD = i
   	CANT_REGLAS = Select (DISTICT PRICING_RULE_ID) from PRICING where PRICING_PRIORIDAD = i 
-    DETALLE_REGLA = Select PRICING_RULE_ID, FIELD_NAME, OPERATOR, VALUE_EXPRESSION, FEE from PRICING where PRICING_PRIORIDAD = i
+    	DETALLE_REGLA = Select PRICING_RULE_ID, FIELD_NAME, OPERATOR, VALUE_EXPRESSION, FEE from PRICING where PRICING_PRIORIDAD = i
 
-		// ELIJO EL PF_teorico
-		payments = 
-		SELECT VARIABLES FROM PAYMENTS
+	// ARMO EL STRING QUE VOY A USAR EN EL ON DEL INNER JOIN ENTRE PAYMENTS Y PRICING
+	For j = 1 to CANT_REGLAS
+		If j = 1 then
+			string = string
+		else
+			stirng = string &"OR"
+		end
 		
-		INNER JOIN  PRICING ON 
-			For j to CANT_REGLAS
-				For K to CANT_VARIABLES					
-					If OPERATOR = not equals THEN
+		For k = 1 to CANT_VARIABLES
+			If j = 1 then
+				string = string
+			else
+				stirng = string &"AND"
+			end
+			If OPERATOR = not equals THEN
 					PAYMENTS.FIELD_NAME = PRICING.VALUE_EXPRESSION
-
-
-INNER JOIN ENTRE RESTRICCIONES Y PAYMENTS EN VARIABLES 	
-	
-	return (payments)	
-
+	// ELIJO EL PF_teorico
+	CREATE TABLE RESULT AS 
+	SELECT 
+		PAYMENT_ID.PAYMENTS,
+		PROCESSING_FEE.PAYMENT,
+		PROCESSING_FEE.PRICING
+	FROM PAYMENTS INNER JOIN  PRICING 
+	ON string,
