@@ -16,7 +16,7 @@ For i = 1 to CANT_PRICING_TYPES
 		
 	// ARMO EL SET DE REGLAS 
 	CANT_REGLAS = Select (DISTINCT PRICING_RULE_ID) from PRICING where PRICING_PRIORIDAD = i
-    	DETALLE_REGLA = Select FIELD_NAME, OPERATOR, VALUE_EXPRESSION from PRICING where PRICING_PRIORIDAD = i 
+    	DETALLE_REGLA = Select FIELD_NAME, OPERATOR, VALUE_EXPRESSION from PRICING where PRICING_PRIORIDAD = i
 	
 	// ARMO EL STRING QUE VOY A USAR EN EL ON DEL INNER JOIN ENTRE PAYMENTS Y PRICING
 	For j = 1 to CANT_REGLAS
@@ -25,13 +25,14 @@ For i = 1 to CANT_PRICING_TYPES
 		else
 			stirng = string &"OR"
 		end
-		PRICING_RULE_ID = REGLAS [j]
+		
 		For k = 1 to CANT_VARIABLES
 			If j = 1 then
 				string = string
 			else
 				stirng = string &"AND"
 			end
+			
 			If DETALLE_REGLA [j,2] = "not equals" THEN
 				stirng = string & "AND" & DETALLE_REGLA [j,1] & "=" & DETALLE_REGLA [j,3]
 			else
